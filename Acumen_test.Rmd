@@ -23,6 +23,9 @@ data$quarter = as.factor(data$quarter)
 # Is there any outliers?
 data %>% 
   ggplot(aes(x = quarter, y = health_score)) + geom_boxplot() + theme_bw()
+
+data %>% 
+  ggplot(aes(x = as.factor(quarter), y = age)) + geom_boxplot() + theme_bw()
 ```
 
 ```{r missing values}
@@ -33,27 +36,35 @@ n_NA %>% knitr::kable()
 
 #### (b)
 ```{r characteristics}
+
+employee = unique(data$employee_id)
+length(employee)
+
 # Gender distribution
 data %>% 
   group_by(sex_male_1) %>% 
-  summarise(n = length(employee_id))
+  summarise(n = length(unique(employee_id)))
 
 # Race distribution
 data %>% 
   group_by(race) %>% 
-  summarise(n = length(employee_id))
+  summarise(n = length(unique(employee_id)))
 
 # Filter out unreasonable health scores
 data_new = 
   data %>% 
-  filter(health_score != "10")
+  filter(health_score != "10") %>% 
+  filter(age < 100) %>% 
+  filter(age > 18) %>% 
+  filter(race > 0)
+
 data_new$race = as.factor(data_new$race)
 
 # Boxplot
 ggplot(data = data_new, aes(x = as.factor(quarter), y = health_score, color = race)) + geom_boxplot() +
   labs(
     x = "Quarter",
-    y = "Race"
+    y = "Health Score"
   ) + theme_bw()
 
 ggplot(data = data_new, aes(x = as.factor(quarter), y = health_score, color = sex_male_1)) + geom_boxplot() +
@@ -61,5 +72,55 @@ ggplot(data = data_new, aes(x = as.factor(quarter), y = health_score, color = se
     x = "Quarter",
     y = "Health Score"
   ) + theme_bw()
+
+ggplot(data = data_new, aes(x = as.factor(quarter), y = salary, color = sex_male_1)) + geom_boxplot() +
+  labs(
+    x = "Quarter",
+    y = "Salary"
+  ) + theme_bw()
+
+ggplot(data = data_new, aes(x = as.factor(quarter), y = salary, color = race)) + geom_boxplot() +
+  labs(
+    x = "Quarter",
+    y = "Salary"
+  ) + theme_bw()
+
+# Demographics change over time?
+time = 
+  data_new %>% 
+  group_by(employee_id) %>% 
+  summarise(gender = length(unique(sex_male_1)), race = length(unique(race)))
+
+time %>% 
+  filter(gender > 1)
+
+time %>% 
+  filter(race > 1)
+
+ggplot(data = data_new, aes(x = as.numeric(quarter), y = salary)) + geom_point() + facet_grid(~race)
+
+ggplot(data = data_new, aes(x = health_score)) + geom_density() + facet_grid(~quarter) + theme_bw()
+```
+
+## Question 2
+```{r association testing}
+ggplot(data = data_new, aes(x = age, y = health_score, color = race)) + geom_point() + theme(legend.position = "none") + facet_grid(~sex_male_1)
+
+
+ggplot(data = data_new, aes(x = salary, y = health_score, color = race)) + geom_point() + facet_grid(~sex_male_1)
+
+gender_overtime = 
+  data_new %>% 
+  group_by(sex_male_1, quarter) %>% 
+  summarise(mean_health = mean(health_score), mean_age = mean(age), mean_salary = mean(salary))
+
+gee_salary = geeglm(data = data_new, health_score ~ salary, id = employee_id)
+summary(gee_salary)
+
+gee_age = geeglm(data = data_new, health_score ~ age*as.factor(sex_male_1), id = employee_id)
+summary(gee_age)
+
+gee_age = geeglm(data = data_new, health_score ~ as.factor(race), id = employee_id)
+summary(gee_age)
 ```
 
