@@ -11,12 +11,21 @@ library(tidyverse)
 ```
 
 ```{r Import data}
-data = readxl::read_excel("./Acumen_Data_Analysis_Exercise.xlsx", sheet = "Data")
+data = readxl::read_excel("./Acumen_Data_Analysis_Exercise.xlsx", sheet = "Data") %>% janitor::clean_names()
+data$employee_id = as.factor(data$employee_id)
+data$quarter = as.factor(data$quarter)
 ```
 
 ## Question 1
+```{r observations}
+# Is there any outliers?
+data %>% 
+  ggplot(aes(x = quarter, y = health_score)) + geom_boxplot() + theme_bw()
+```
+
 ```{r missing values}
 # Calculate missing values
-
+n_NA = sapply(data[1:9], function(x) sum(length(which(is.na(x)))))
+n_NA %>% as.data.frame()
 ```
 
