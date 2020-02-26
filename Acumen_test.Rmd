@@ -17,6 +17,8 @@ data$quarter = as.factor(data$quarter)
 ```
 
 ## Question 1
+
+#### (a)
 ```{r observations}
 # Is there any outliers?
 data %>% 
@@ -26,6 +28,22 @@ data %>%
 ```{r missing values}
 # Calculate missing values
 n_NA = sapply(data[1:9], function(x) sum(length(which(is.na(x)))))
-n_NA %>% as.data.frame()
+n_NA %>% knitr::kable()
+```
+
+#### (b)
+```{r characteristics}
+# Gender distribution
+data %>% 
+  group_by(sex_male_1) %>% 
+  summarise(n = length(employee_id))
+
+# Race distribution
+data %>% 
+  group_by(race) %>% 
+  summarise(n = length(employee_id))
+
+# Spaghetti plot
+ggplot(data = data, aes(x = quarter, y = health_score, group = employee_id, color = employee_id))
 ```
 
