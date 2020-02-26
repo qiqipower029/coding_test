@@ -43,7 +43,23 @@ data %>%
   group_by(race) %>% 
   summarise(n = length(employee_id))
 
-# Spaghetti plot
-ggplot(data = data, aes(x = quarter, y = health_score, group = employee_id, color = employee_id))
+# Filter out unreasonable health scores
+data_new = 
+  data %>% 
+  filter(health_score != "10")
+data_new$race = as.factor(data_new$race)
+
+# Boxplot
+ggplot(data = data_new, aes(x = as.factor(quarter), y = health_score, color = race)) + geom_boxplot() +
+  labs(
+    x = "Quarter",
+    y = "Race"
+  ) + theme_bw()
+
+ggplot(data = data_new, aes(x = as.factor(quarter), y = health_score, color = sex_male_1)) + geom_boxplot() +
+  labs(
+    x = "Quarter",
+    y = "Health Score"
+  ) + theme_bw()
 ```
 
