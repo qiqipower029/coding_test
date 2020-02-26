@@ -1,0 +1,22 @@
+---
+title: "Acumen_test"
+author: "Jieqi Tu, jt3098"
+date: "2/25/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r Import data}
+data = readxl::read_excel("./Acumen_Data_Analysis_Exercise.xlsx", sheet = "Data")
+```
+
+## Question 1
+```{r missing values}
+# Calculate missing values
+
+```
+
